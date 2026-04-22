@@ -15,7 +15,9 @@ class DynamicPlotterApp:
         self.plugins_dir = plugins_dir
         
         # Le "cerveau" des données : un dictionnaire accessible par tous
-        self.data_store = {}
+        self.expr = {}
+        self.fasta = {}
+        self.gtf = {}
 
         # --- Sidebar ---
         self.sidebar = tk.Frame(self.root, width=200, bg='lightgrey', padx=10, pady=10)
@@ -53,7 +55,7 @@ class DynamicPlotterApp:
                 # Exemple : on charge un fichier TSV avec Pandas
                 import pandas as pd
                 name = os.path.basename(file_path)
-                self.data_store[name] = pd.read_csv(file_path, sep='\t')
+                self.fasta[name] = pd.read_csv(file_path, sep='\t')
                 messagebox.showinfo("Succès", f"Fichier '{name}' chargé !")
             except Exception as e:
                 messagebox.showerror("Erreur", f"Impossible de lire le fichier :\n{e}")
@@ -66,7 +68,7 @@ class DynamicPlotterApp:
                 # Exemple : on charge un fichier TSV avec Pandas
                 import pandas as pd
                 name = os.path.basename(file_path)
-                self.data_store[name] = pd.read_csv(file_path, sep='\t')
+                self.gtf[name] = pd.read_csv(file_path, sep='\t')
                 messagebox.showinfo("Succès", f"Fichier '{name}' chargé !")
             except Exception as e:
                 messagebox.showerror("Erreur", f"Impossible de lire le fichier :\n{e}")
@@ -79,7 +81,7 @@ class DynamicPlotterApp:
                 # Exemple : on charge un fichier TSV avec Pandas
                 import pandas as pd
                 name = os.path.basename(file_path)
-                self.data_store[name] = pd.read_csv(file_path, sep='\t')
+                self.expr[name] = pd.read_csv(file_path, sep='\t')
                 messagebox.showinfo("Succès", f"Fichier '{name}' chargé !")
             except Exception as e:
                 messagebox.showerror("Erreur", f"Impossible de lire le fichier :\n{e}")
@@ -88,7 +90,7 @@ class DynamicPlotterApp:
         self.fig.clear()
         try:
             # ON PASSE LE DATA_STORE AU PLUGIN ICI
-            plot_func(self.fig, self.data_store)
+            plot_func(self.fig, self.fasta, self.gtf, self.expr)
             self.canvas.draw()
         except Exception as e:
             messagebox.showerror("Erreur", f"Analyse impossible : {e}")
