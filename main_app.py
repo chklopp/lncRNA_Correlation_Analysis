@@ -21,10 +21,20 @@ class DynamicPlotterApp:
         self.sidebar = tk.Frame(self.root, width=200, bg='lightgrey', padx=10, pady=10)
         self.sidebar.grid(row=0, column=0, sticky="ns")
 
-        # Bouton pour charger un fichier
-        self.load_btn = tk.Button(self.sidebar, text="📁 Charger Données", 
-                                  command=self.open_file, bg="gold")
-        self.load_btn.pack(pady=20, fill=tk.X)
+        # Bouton pour charger le fasta
+        self.load_btn1 = tk.Button(self.sidebar, text="📁 Charger Fasta", 
+                                  command=self.open_fasta_file, bg="gold")
+        self.load_btn1.pack(pady=20, fill=tk.X)
+
+        # Bouton pour charger le gtf
+        self.load_btn2 = tk.Button(self.sidebar, text="📁 Charger GTF", 
+                                  command=self.open_gtf_file, bg="gold")
+        self.load_btn2.pack(pady=20, fill=tk.X)
+
+        # Bouton pour charger le fichier d'expression
+        self.load_btn3 = tk.Button(self.sidebar, text="📁 Charger Expressions", 
+                                  command=self.open_expr_file, bg="gold")
+        self.load_btn3.pack(pady=20, fill=tk.X)
 
         # Zone pour les boutons de plugins (on crée un cadre dédié)
         self.plugin_frame = tk.Frame(self.sidebar, bg='lightgrey')
@@ -35,9 +45,35 @@ class DynamicPlotterApp:
         
         self.load_plugins()
 
-    def open_file(self):
+    def open_fasta_file(self):
         """Charge un fichier et le stocke dans data_store."""
-        file_path = filedialog.askopenfilename(title="Sélectionner un fichier de données")
+        file_path = filedialog.askopenfilename(title="Sélectionner le fichier fasta des lncRNA")
+        if file_path:
+            try:
+                # Exemple : on charge un fichier TSV avec Pandas
+                import pandas as pd
+                name = os.path.basename(file_path)
+                self.data_store[name] = pd.read_csv(file_path, sep='\t')
+                messagebox.showinfo("Succès", f"Fichier '{name}' chargé !")
+            except Exception as e:
+                messagebox.showerror("Erreur", f"Impossible de lire le fichier :\n{e}")
+
+    def open_gtf_file(self):
+        """Charge un fichier et le stocke dans data_store."""
+        file_path = filedialog.askopenfilename(title="Sélectionner le fichier gtf des lncRNA")
+        if file_path:
+            try:
+                # Exemple : on charge un fichier TSV avec Pandas
+                import pandas as pd
+                name = os.path.basename(file_path)
+                self.data_store[name] = pd.read_csv(file_path, sep='\t')
+                messagebox.showinfo("Succès", f"Fichier '{name}' chargé !")
+            except Exception as e:
+                messagebox.showerror("Erreur", f"Impossible de lire le fichier :\n{e}")
+
+    def open_expr_file(self):
+        """Charge un fichier et le stocke dans data_store."""
+        file_path = filedialog.askopenfilename(title="Sélectionner le fichier gtf des lncRNA")
         if file_path:
             try:
                 # Exemple : on charge un fichier TSV avec Pandas
