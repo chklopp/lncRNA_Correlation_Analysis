@@ -5,33 +5,59 @@ import importlib.util
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
+import tkinter as tk
+from tkinter import filedialog, messagebox
+# ... (autres imports identiques au script précédent)
+
 class DynamicPlotterApp:
     def __init__(self, root, plugins_dir):
         self.root = root
-        self.root.title("Analyseur Dynamique de Génomes")
         self.plugins_dir = plugins_dir
         
-        # Configuration de la mise en page (Grid)
-        self.root.columnconfigure(1, weight=1)
-        self.root.rowconfigure(0, weight=1)
+        # Le "cerveau" des données : un dictionnaire accessible par tous
+        self.data_store = {}
 
-        # 1. Colonne de gauche : Menu des boutons
+        # --- Sidebar ---
         self.sidebar = tk.Frame(self.root, width=200, bg='lightgrey', padx=10, pady=10)
         self.sidebar.grid(row=0, column=0, sticky="ns")
-        
-        tk.Label(self.sidebar, text="Analyses", bg='lightgrey', font=('Arial', 12, 'bold')).pack(pady=10)
 
-        # 2. Colonne de droite : Zone graphique
-        self.plot_frame = tk.Frame(self.root, bg='white')
-        self.plot_frame.grid(row=0, column=1, sticky="nsew")
-        
-        # Initialisation de la figure Matplotlib
-        self.fig = plt.Figure(figsize=(6, 4), dpi=100)
-        self.canvas = FigureCanvasTkAgg(self.fig, master=self.plot_frame)
-        self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+        # Bouton pour charger un fichier
+        self.load_btn = tk.Button(self.sidebar, text="📁 Charger Données", 
+                                  command=self.open_file, bg="gold")
+        self.load_btn.pack(pady=20, fill=tk.X)
 
-        # 3. Chargement dynamique des boutons
+        # Zone pour les boutons de plugins (on crée un cadre dédié)
+        self.plugin_frame = tk.Frame(self.sidebar, bg='lightgrey')
+        self.plugin_frame.pack(fill=tk.BOTH, expand=True)
+
+        # --- Zone Graphique ---
+        # ... (Configuration de la zone graphique identique)
+        
         self.load_plugins()
+
+    def open_file(self):
+        """Charge un fichier et le stocke dans data_store."""
+        file_path = filedialog.askopenfilename(title="Sélectionner un fichier de données")
+        if file_path:
+            try:
+                # Exemple : on charge un fichier TSV avec Pandas
+                import pandas as pd
+                name = os.path.basename(file_path)
+                self.data_store[name] = pd.read_csv(file_path, sep='\t')
+                messagebox.showinfo("Succès", f"Fichier '{name}' chargé !")
+            except Exception as e:
+                messagebox.showerror("Erreur", f"Impossible de lire le fichier :\n{e}")
+
+    def run_analysis(self, plot_func):
+        self.fig.clear()
+        try:
+            # ON PASSE LE DATA_STORE AU PLUGIN ICI
+            plot_func(self.fig, self.data_store)
+            self.canvas.draw()
+        except Exception as e:
+            messagebox.showerror("Erreur", f"Analyse impossible : {e}")
+
+    # ... (le reste de la méthode load_plugins reste identique)
 
     def load_plugins(self):
         if not os.path.exists(self.plugins_dir):
@@ -63,17 +89,7 @@ class DynamicPlotterApp:
         except Exception as e:
             print(f"Erreur lors du chargement de {filename}: {e}")
 
-    def run_analysis(self, plot_func):
-        # Effacer la figure précédente
-        self.fig.clear()
-        
-        # Exécuter la fonction de tracé du module
-        try:
-            plot_func(self.fig)
-            self.canvas.draw()
-        except Exception as e:
-            messagebox.showerror("Erreur de calcul", f"Le script a échoué :\n{e}")
-
+    
 if __name__ == "__main__":
     root = tk.Tk()
     root.geometry("1000x600")
