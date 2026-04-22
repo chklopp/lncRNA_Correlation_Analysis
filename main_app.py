@@ -38,13 +38,17 @@ class DynamicPlotterApp:
                                   command=self.open_expr_file, bg="gold")
         self.load_btn3.pack(pady=20, fill=tk.X)
 
-        # Zone pour les boutons de plugins (on crée un cadre dédié)
-        self.plugin_frame = tk.Frame(self.sidebar, bg='lightgrey')
-        self.plugin_frame.pack(fill=tk.BOTH, expand=True)
+        # 2. Colonne de droite : Zone graphique 
+        self.plot_frame = tk.Frame(self.root, bg='white')
+        self.plot_frame.grid(row=0, column=1, sticky="nsew")
 
-        # --- Zone Graphique ---
-        # ... (Configuration de la zone graphique identique)
-        
+        # --- Zone Graphique ---        
+        # Initialisation de la figure Matplotlib
+        self.fig = plt.Figure(figsize=(6, 4), dpi=100)
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self.plot_frame)
+        self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+
+        # 3. Chargement dynamique des boutons        
         self.load_plugins()
 
     def open_fasta_file(self):
