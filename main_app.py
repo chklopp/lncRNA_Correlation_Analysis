@@ -1,12 +1,15 @@
 import tkinter as tk
 from tkinter import messagebox
 import os
+import re
 import importlib.util
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-
-import tkinter as tk
+from Bio import SeqIO
+from Bio.Align import PairwiseAligner
+from dtw import dtw
 from tkinter import filedialog, messagebox
+
 # ... (autres imports identiques au script précédent)
 
 class DynamicPlotterApp:
@@ -38,6 +41,11 @@ class DynamicPlotterApp:
                                   command=self.open_expr_file, bg="gold")
         self.load_btn3.pack(pady=20, fill=tk.X)
 
+        # boite de dialogue pour donner le nom du groupe orthologue
+        tk.Label(self.sidebar, text="Nom du groupe (REF):").pack(pady=10)
+        self.ref_entry = tk.Entry(self.sidebar)
+        self.ref_entry.pack(fill=tk.X)
+
         # 2. Colonne de droite : Zone graphique 
         self.plot_frame = tk.Frame(self.root, bg='white')
         self.plot_frame.grid(row=0, column=1, sticky="nsew")
@@ -51,12 +59,16 @@ class DynamicPlotterApp:
         # 3. Chargement dynamique des boutons        
         self.load_plugins()
 
+    def extract_tag(self, text):
+        match = re.search(r'REF=([^;\s\n]+)', text)
+        return match.group(1) if match else "Unknown"
+
     def open_fasta_file(self):
         """Charge un fichier et le stocke dans data_store."""
         file_path = filedialog.askopenfilename(title="Sélectionner le fichier fasta des lncRNA")
-        if path:
+        if file_path:
             self.fasta_data = {}
-            for rec in SeqIO.parse(path, "fasta"):
+            for rec in SeqIO.parse(file_path, "fasta"):
                 ref = self.extract_tag(rec.description)
                 if ref not in self.fasta_data: self.fasta_data[ref] = []
                 self.fasta_data[ref].append(rec)
@@ -65,9 +77,9 @@ class DynamicPlotterApp:
     def open_gtf_file(self):
         """Charge un fichier et le stocke dans data_store."""
         file_path = filedialog.askopenfilename(title="Sélectionner le fichier gtf des lncRNA")
-        if path:
+        if file_path:
             self.gtf_data = {}
-            with open(path, 'r') as f:
+            with open(file_path, 'r') as f:
                 for line in f:
                     if line.startswith("#") or "\texon\t" not in line: continue
                     ref = self.extract_tag(line)
