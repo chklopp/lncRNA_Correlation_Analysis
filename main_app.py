@@ -54,28 +54,31 @@ class DynamicPlotterApp:
     def open_fasta_file(self):
         """Charge un fichier et le stocke dans data_store."""
         file_path = filedialog.askopenfilename(title="Sélectionner le fichier fasta des lncRNA")
-        if file_path:
-            try:
-                # Exemple : on charge un fichier TSV avec Pandas
-                import pandas as pd
-                name = os.path.basename(file_path)
-                self.fasta[name] = pd.read_csv(file_path, sep='\t')
-                messagebox.showinfo("Succès", f"Fichier '{name}' chargé !")
-            except Exception as e:
-                messagebox.showerror("Erreur", f"Impossible de lire le fichier :\n{e}")
+        if path:
+            self.fasta_data = {}
+            for rec in SeqIO.parse(path, "fasta"):
+                ref = self.extract_tag(rec.description)
+                if ref not in self.fasta_data: self.fasta_data[ref] = []
+                self.fasta_data[ref].append(rec)
+            messagebox.showinfo("Succès", f"FASTA chargé : {len(self.fasta_data)} groupes REF trouvés.")
 
     def open_gtf_file(self):
         """Charge un fichier et le stocke dans data_store."""
         file_path = filedialog.askopenfilename(title="Sélectionner le fichier gtf des lncRNA")
-        if file_path:
-            try:
-                # Exemple : on charge un fichier TSV avec Pandas
-                import pandas as pd
-                name = os.path.basename(file_path)
-                self.gtf[name] = pd.read_csv(file_path, sep='\t')
-                messagebox.showinfo("Succès", f"Fichier '{name}' chargé !")
-            except Exception as e:
-                messagebox.showerror("Erreur", f"Impossible de lire le fichier :\n{e}")
+        if path:
+            self.gtf_data = {}
+            with open(path, 'r') as f:
+                for line in f:
+                    if line.startswith("#") or "\texon\t" not in line: continue
+                    ref = self.extract_tag(line)
+                    tid = re.search(r'transcript_id "([^"]+)"', line).group(1)
+                    cols = line.split('\t')
+                    start, end = int(cols[3]), int(cols[4])
+                    
+                    if ref not in self.gtf_data: self.gtf_data[ref] = {}
+                    if tid not in self.gtf_data[ref]: self.gtf_data[ref][tid] = []
+                    self.gtf_data[ref][tid].append((start, end))
+            messagebox.showinfo("Succès", f"GTF chargé : {len(self.gtf_data)} groupes REF trouvés.")
 
     def open_expr_file(self):
         """Charge un fichier et le stocke dans data_store."""
