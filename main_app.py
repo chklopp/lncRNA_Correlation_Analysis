@@ -6,7 +6,6 @@ import importlib.util
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from Bio import SeqIO
-from Bio.Align import PairwiseAligner
 from dtw import dtw
 from tkinter import filedialog, messagebox
 
@@ -18,9 +17,10 @@ class DynamicPlotterApp:
         self.plugins_dir = plugins_dir
         
         # Le "cerveau" des données : un dictionnaire accessible par tous
-        self.expr = {}
-        self.fasta = {}
-        self.gtf = {}
+        self.expr_data = {}
+        self.fasta_data = {}
+        self.gtf_data = {}
+        self.ref_entry = "" 
 
         # --- Sidebar ---
         self.sidebar = tk.Frame(self.root, width=200, bg='lightgrey', padx=10, pady=10)
@@ -52,7 +52,7 @@ class DynamicPlotterApp:
 
         # --- Zone Graphique ---        
         # Initialisation de la figure Matplotlib
-        self.fig = plt.Figure(figsize=(6, 4), dpi=100)
+        self.fig = plt.Figure(figsize=(9, 9), dpi=100)
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.plot_frame)
         self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
 
@@ -100,7 +100,7 @@ class DynamicPlotterApp:
                 # Exemple : on charge un fichier TSV avec Pandas
                 import pandas as pd
                 name = os.path.basename(file_path)
-                self.expr[name] = pd.read_csv(file_path, sep='\t')
+                self.expr_data[name] = pd.read_csv(file_path, sep='\t')
                 messagebox.showinfo("Succès", f"Fichier '{name}' chargé !")
             except Exception as e:
                 messagebox.showerror("Erreur", f"Impossible de lire le fichier :\n{e}")
@@ -109,12 +109,11 @@ class DynamicPlotterApp:
         self.fig.clear()
         try:
             # ON PASSE LE DATA_STORE AU PLUGIN ICI
-            plot_func(self.fig, self.fasta, self.gtf, self.expr)
+            plot_func(self.fig, self.fasta_data, self.gtf_data, self.expr_data, self.ref_entry.get())
+            # print("self.ref_entry "+self.ref_entry)
             self.canvas.draw()
         except Exception as e:
-            messagebox.showerror("Erreur", f"Analyse impossible : {e}")
-
-    # ... (le reste de la méthode load_plugins reste identique)
+            messagebox.showerror("Erreur", f"Analyse impossible XXX : {e}")
 
     def load_plugins(self):
         if not os.path.exists(self.plugins_dir):

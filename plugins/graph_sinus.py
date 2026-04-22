@@ -2,7 +2,7 @@ import seaborn as sns
 
 BUTTON_NAME = "Heatmap des Distances"
 
-def generate_plot(figure, fasta, gtf, expr):
+def generate_plot(figure, fasta, gtf, expr, orthogroup):
     # 1. Vérifier si des données sont chargées
     if not expr:
         raise ValueError("Aucune donnée chargée. Cliquez sur 'Charger Données'.")
