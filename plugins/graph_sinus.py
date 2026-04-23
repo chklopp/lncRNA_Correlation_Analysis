@@ -22,7 +22,7 @@ def dist_msa(fasta):
     aligner = PairwiseAligner(mode='global')
     matrix = np.zeros((n, n))
     ids = [s.id for s in fasta]
-    
+
     for i in range(n):
         for j in range(i, n):
             score = aligner.score(fasta[i].seq, fasta[j].seq)
@@ -40,9 +40,24 @@ def generate_plot(figure, fasta, gtf, expr, orthogroup):
     
     matrix = dist_msa(get_current_group_seqs(fasta, orthogroup))
     print(matrix)
+
+    if matrix.isnull().values.any():
+        print("Warning: NaN détectés. Remplacement par 0.")
+        matrix = matrix.fillna(0)
+
+    cmap="viridis"
+    z_score=None
+
     # On suppose que le fichier est une matrice de distance
     # On utilise sns.heatmap directement sur la figure passée
-    sns.heatmap(matrix, ax=ax, cmap="YlGnBu")
+    sns.clustermap(1 - matrix, 
+        cmap=cmap, 
+        standard_scale=z_score, # Normalise entre 0 et 1 si besoin
+        method='ward',          # Méthode de clustering robuste
+        metric='euclidean', 
+        figsize=(10, 8),
+        annot=False             # Mettre à True pour afficher les valeurs
+    )
     #sns.clustermap(matrix)
     figure.tight_layout()
     ax.set_title(f"Analyse de : {orthogroup}")
