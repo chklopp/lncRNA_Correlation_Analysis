@@ -5,7 +5,7 @@ import pandas as pd
 
 BUTTON_NAME = "Read pairs distances"
 
-# --- Fonctions de calcul ---
+
 def get_current_group_seqs(fasta_data, ref_entry):
     print(fasta_data[ref_entry])
     if ref_entry not in fasta_data:
@@ -20,7 +20,7 @@ def dist_seq(fasta):
     aligner = PairwiseAligner(mode='local')
     matrix = np.zeros((n, n))
     ids = [s.id for s in fasta]
-        
+
     for i in range(n):
         for j in range(i, n):
             score = aligner.score(fasta[i].seq, fasta[j].seq)

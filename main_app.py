@@ -113,7 +113,7 @@ class DynamicPlotterApp:
             # print("self.ref_entry "+self.ref_entry)
             self.canvas.draw()
         except Exception as e:
-            messagebox.showerror("Erreur", f"Analyse impossible XXX : {e}")
+            messagebox.showerror("Erreur", f"Analyse impossible, pas de groupe? : {e}")
 
     def load_plugins(self):
         if not os.path.exists(self.plugins_dir):
